@@ -1,52 +1,50 @@
 require_relative 'square_node'
 
 class Knight
-  attr_accessor :moves, :root, :visited
+  attr_accessor :moves, :root, :visited, :board, :indices
 
-  def initialize(position)
-    @position = position
-    @visited = []
-    @root = build_graph(@position)
+  def initialize(position = [0, 0], target = [7, 7])
+    knight_moves(position, target)
   end
 
   def knight_moves(position, target)
-    # calculate the shortest path from position to target
+    print "Initial location: #{position}\nTarget location: #{target}\n"
+    search = bfs(position, target)
+    puts "Congratulations! You made it in #{search[1]} moves! Here's your path:"
+    steps = define_steps(position, target)
+    steps.each { |step| print "#{step}\n" }
   end
 
-  # def target_path(target, root = @root, index = 0, indices = [])
-  #   return if root.nil?
-  #   return index if target == root.position
+  def define_steps(position, target)
+    steps = []
+    last_step = bfs(position, target)
 
-  #   # return 1 if any of the root's children have the target position
-
-  #   root.moves.each { |move| indices << target_path(target, move, index + 1, indices) }
-
-  #   indices.reject! { |index| index.nil? }
-  #   return indices if index.zero?
-
-  #   index
-  # end
-
-  def include_target?(target, root = @root)
-    return nil if root.nil?
-    return true if root.position == target
-    return true if root.moves.any? { |move| include_target?(target, move) }
-
-    false
+    steps.unshift(last_step[0])
+    until last_step[1] == 1
+      last_step = bfs(position, last_step[2])
+      steps.unshift(last_step[0])
+    end
+    steps.unshift(position)
   end
 
-  def build_graph(position)
-    return nil if !@visited.nil? && @visited.include?(position)
+  def bfs(position, target)
+    queue = []
+    explored = Set.new
 
-    @visited.push(position)
+    explored << position
+    queue << [position, 0, nil]
 
-    root = Square.new(position)
+    until queue.empty?
+      current_node = queue.shift
+      return current_node if current_node[0] == target
 
-    possible = possible_moves(position)
-
-    possible.each { |link| root.moves << build_graph(link) }
-
-    root
+      possible_moves(current_node[0]).each do |move|
+        unless explored.include?(move)
+          explored << move
+          queue << [move, current_node[1] + 1, current_node[0]]
+        end
+      end
+    end
   end
 
   def possible_moves(position)
