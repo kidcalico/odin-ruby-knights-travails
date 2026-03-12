@@ -6,14 +6,14 @@ class Knight
   end
 
   def knight_moves(position, target)
-    determine_path(position, target)
     define_steps(position, target)
     print "Initial location: #{position}\nTarget location: #{target}\n"
-    puts "Congratulations! You made it in #{@steps.length - 1} moves! Here's your path:"
+    puts "Congratulations, you made it in #{@steps.length - 1} moves! Here's your path:"
     @steps.each { |step| print "#{step}\n" }
   end
 
   def define_steps(position, target)
+    determine_path(position, target)
     @steps << target
     last_step = @parents[target]
 
